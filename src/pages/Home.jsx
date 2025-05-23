@@ -9,6 +9,29 @@ const Home = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  //Button delete handelEvent
+ const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('token'); 
+      // muss den token holen dann von localStorage delete
+
+      await axios.delete(`http://localhost:3001/api/events/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      });
+// setEvents ist die State-Setter-Funktion von meine Event state
+// damit die aktuelle zeigt --> prev dann neues array erstllen, in dem nur die Events drinbleiben, 
+// deren id nicht gleich id (die gelöschte ID) sind.
+      setEvents((prevEvents) => prevEvents.filter(event => event.id !== id));
+
+    } catch (error) {
+      console.error('Fehler beim Löschen:', error);
+      setError('Fehler beim Löschen des Events.');
+    }
+  };
+
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -33,7 +56,8 @@ const Home = () => {
   
 const handleEventClick = (id) => {
   // Weiterleitung zur Event-Detailseite mit der ID
- navigate(`/event-details/${id}`);
+  navigate(`/events/${id}`);
+//  statt navigate(`/event-details/${id}`); muss   navigate(`/events/${id}`); weil in App auch so angegeben ist 
   };
 
   return (
@@ -45,7 +69,8 @@ const handleEventClick = (id) => {
         ) : (
           events.map((event) => (
             <div key={event.id} 
-           className="event-card flex flex-col flex-wrap justify-between cursor-pointer bg-[white] rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300"
+           className="event-card flex flex-col flex-wrap justify-between cursor-pointer bg-[white] rounded-2xl shadow-md p-6 
+           hover:shadow-lg transition-shadow duration-300"
             onClick={() => handleEventClick(event.id)}>
 
               <h2 className="text-[color:rgba(71,100,136,0.8)] text-2xl font-bold mb-2">
@@ -85,8 +110,14 @@ const handleEventClick = (id) => {
                 <p className="text-sm text-gray-400">
                 {event.longitude}</p>
 
-                  <button className="mt-4 border-2 border-[#769ac6] group flex h-10 items-center gap-2 rounded  bg-neutral-200 pl-3 pr-4 transition-all duration-300 ease-in-out hover:bg-[#769ac6] hover:pl-2 hover:text-white active:bg-neutral-700">
-  <span className="rounded-full bg-[#769ac6] p-1 text-sm transition-colors duration-300 group-hover:bg-white">
+<div className='flex gap-8'>
+
+  <button className="mt-4 border-2 border-[#769ac6] group flex h-10 
+  items-center gap-2 rounded  bg-neutral-200 pl-3 pr-4 transition-all duration-300 ease-in-out 
+  hover:bg-[#769ac6] hover:pl-2 hover:text-white active:bg-neutral-700">
+  <span className="rounded-full bg-[#769ac6] p-1 text-sm transition-colors 
+  duration-300 group-hover:bg-white">
+
     <svg
       stroke="currentColor"
       fill="none"
@@ -94,7 +125,8 @@ const handleEventClick = (id) => {
       viewBox="0 0 24 24"
       stroke-linecap="round"
       stroke-linejoin="round"
-      className="-translate-x-[200%] text-[0px] transition-all duration-300 group-hover:translate-x-0 group-hover:text-lg group-hover:text-[#769ac6] group-active:-rotate-45"
+      className="-translate-x-[200%] text-[0px] transition-all duration-300 group-hover:translate-x-0 group-hover:text-lg
+       group-hover:text-[#769ac6] group-active:-rotate-45"
       height="1em"
       width="1em"
       xmlns="http://www.w3.org/2000/svg"
@@ -102,10 +134,23 @@ const handleEventClick = (id) => {
       <line x1="5" y1="12" x2="19" y2="12"></line>
       <polyline points="12 5 19 12 12 19"></polyline>
     </svg>
+
   </span>
   <span className='text-[#374151]'>Learn More</span>
 </button>
 
+{/* handleDelete hier aufrufen durch den Button  */}
+<button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleDelete(event.id);
+  }}
+  className="mt-4 h-10 flex items-center bg-red-500 text-white px-4 
+  rounded hover:bg-red-600 transition duration-300"
+>Delete
+</button>
+
+</div>
             </div>
           ))
         )}
